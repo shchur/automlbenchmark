@@ -36,6 +36,12 @@ AutoGluon_bestquality:
   params:
     presets: best_quality
 
+AutoGluon_snaive:
+  extends: AutoGluon
+  params:
+    hyperparameters:
+      SeasonalNaive: {}
+
 AutoGluon_hq:
   extends: AutoGluon
   description: |
@@ -173,7 +179,7 @@ NaiveAutoML:
   project: https://github.com/fmohr/naiveautoml
   description: |
     NaiveAutoML is an AutoML framework that aims to mimic a simple ML workflow,
-    where in-isolation optimization of the different components of a pre-defined 
+    where in-isolation optimization of the different components of a pre-defined
     pipeline scheme is applied.
   refs: [https://link.springer.com/article/10.1007/s10994-022-06200-0#article-info]
 #  params:
@@ -244,3 +250,63 @@ TunedRandomForest:
 #    _n_jobs: 1  # cf. RandomForest
 #    _tuning:
 #      n_estimators: 500
+
+#######################################
+### Time series forecasting frameworks ###
+#######################################
+
+StatsForecast:
+  version: 'stable'
+  description: |
+    Lightning ⚡️ fast forecasting with statistical and econometric models.
+  project: https://github.com/Nixtla/statsforecast
+
+
+StatsForecast_Naive:
+  extends: StatsForecast
+  params:
+    model_name: Naive
+
+
+StatsForecast_SeasonalNaive:
+  extends: StatsForecast
+  params:
+    model_name: SeasonalNaive
+
+
+StatsForecast_AutoARIMA:
+  extends: StatsForecast
+  params:
+    model_name: AutoARIMA
+    nmodels: 2
+
+
+StatsForecast_AutoETS:
+  extends: StatsForecast
+  params:
+    model_name: AutoETS
+
+
+StatsForecast_AutoTheta:
+  extends: StatsForecast
+  params:
+    model_name: AutoTheta
+
+
+GluonTS:
+  version: 'stable'
+  description: |
+    Probabilistic Time Series Modeling in Python.
+  project: https://github.com/awslabs/gluonts/
+
+
+GluonTS_DeepAR:
+  extends: GluonTS
+  params:
+    model_name: DeepAR
+
+
+GluonTS_TFT:
+  extends: GluonTS
+  params:
+    model_name: TFT
