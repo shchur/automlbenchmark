@@ -36,12 +36,6 @@ AutoGluon_bestquality:
   params:
     presets: best_quality
 
-AutoGluon_snaive:
-  extends: AutoGluon
-  params:
-    hyperparameters:
-      SeasonalNaive: {}
-
 AutoGluon_hq:
   extends: AutoGluon
   description: |
@@ -293,20 +287,7 @@ StatsForecast_AutoTheta:
     model_name: AutoTheta
 
 
-GluonTS:
+NeuralProphet:
   version: 'stable'
   description: |
-    Probabilistic Time Series Modeling in Python.
-  project: https://github.com/awslabs/gluonts/
-
-
-GluonTS_DeepAR:
-  extends: GluonTS
-  params:
-    model_name: DeepAR
-
-
-GluonTS_TFT:
-  extends: GluonTS
-  params:
-    model_name: TFT
+    NeuralProphet: A simple forecasting package
