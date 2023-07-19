@@ -291,3 +291,18 @@ NeuralProphet:
   version: 'stable'
   description: |
     NeuralProphet: A simple forecasting package
+  project: https://github.com/ourownstory/neural_prophet
+
+
+AutoTS:
+  version: 'stable'
+  description: |
+    AutoTS: Automated Time Series Forecasting
+  project: https://github.com/winedarksea/AutoTS
+
+
+AutoTS_fast:
+  extends: AutoTS
+  params:
+    model_list: fast
+    transformer_list: fast
