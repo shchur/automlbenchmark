@@ -306,3 +306,22 @@ AutoTS_fast:
   params:
     model_list: fast
     transformer_list: fast
+
+
+GluonTS:
+  version: 'stable'
+  description: |
+    Probabilistic time series modeling in Python.
+  project: https://github.com/awslabs/gluonts
+
+
+GluonTS_DeepAR:
+  extends: GluonTS
+  params:
+    model_name: DeepAR
+
+
+GluonTS_TFT:
+  extends: GluonTS
+  params:
+    model_name: TFT
