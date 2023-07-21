@@ -1,4 +1,11 @@
+import time
 import logging
+
+log = logging.getLogger(__name__)
+
+log.warning("SLEEPING FOR 10000")
+time.sleep(10000)
+
 import numpy as np
 import pandas as pd
 import warnings
@@ -16,8 +23,6 @@ from statsforecast.models import (
 
 from frameworks.shared.callee import call_run, result
 from frameworks.shared.utils import Timer
-
-log = logging.getLogger(__name__)
 
 
 def run(dataset, config):
