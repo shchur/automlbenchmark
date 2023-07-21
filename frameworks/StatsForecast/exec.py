@@ -33,7 +33,7 @@ def run(dataset, config):
 
     models = get_models(
         framework_params=config.framework_params,
-        seasonality=dataset.seasonality,
+        seasonality=7 if dataset.freq == "D" else dataset.seasonality,
     )
     model_name = repr(models[0])
     # Convert quantile_levels (floats in (0, 1)) to confidence levels (ints in [0, 100]) used by StatsForecast
