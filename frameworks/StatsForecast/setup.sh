@@ -9,8 +9,6 @@ fi
 
 . "${HERE}/../shared/setup.sh" "${HERE}" true
 
-PIP install fsspec
-
 if [[ "$VERSION" == "stable" ]]; then
     PIP install --no-cache-dir -U ${PKG}
 elif [[ "$VERSION" =~ ^[0-9] ]]; then
