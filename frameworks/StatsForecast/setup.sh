@@ -9,6 +9,8 @@ fi
 
 . "${HERE}/../shared/setup.sh" "${HERE}" true
 
+PIP install fsspec
+
 if [[ "$VERSION" == "stable" ]]; then
     PIP install --no-cache-dir -U ${PKG}
 elif [[ "$VERSION" =~ ^[0-9] ]]; then
@@ -20,5 +22,6 @@ else
     git clone --depth 1 --single-branch --branch ${VERSION} --recurse-submodules ${REPO} ${TARGET_DIR}
     PIP install -U -e ${TARGET_DIR}
 fi
+
 
 PY -c "from statsforecast import __version__; print(__version__)" >> "${HERE}/.setup/installed"
