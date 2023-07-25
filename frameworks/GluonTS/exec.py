@@ -20,8 +20,8 @@ log = logging.getLogger(__name__)
 
 
 default_params = {
-    "max_epochs": 5000,
-    "patience": 50,
+    "max_epochs": 10_000,
+    "patience": 100,
     "model_name": "DeepAR",
     "batch_size": 64,
 }
