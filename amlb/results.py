@@ -786,6 +786,14 @@ class TimeSeriesResult(RegressionResult):
         pl_per_item = self._itemwise_mean(self._quantile_loss_per_step().mean(axis=1) / self.abs_seasonal_error)
         return self._safemean(pl_per_item)
 
+    @metric(higher_is_better=False)
+    def miscoverage(self):
+        """Difference between true and expected coverage, averaged over all items, time steps, and quantile levels.
+
+        For each quantile level q, miscoverage is defined as abs(q - mean(y_true <= y_pred_at_level_q))
+        """
+        return np.mean(np.abs((self.quantile_predictions >= self.truth[:, None]).mean(0) - self.quantile_levels))
+
 
 _encode_predictions_and_truth_ = False
 
