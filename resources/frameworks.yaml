@@ -256,32 +256,31 @@ StatsForecast:
   project: https://github.com/Nixtla/statsforecast
 
 
-StatsForecast_Naive:
+Naive:
   extends: StatsForecast
   params:
     model_name: Naive
 
 
-StatsForecast_SeasonalNaive:
+SeasonalNaive:
   extends: StatsForecast
   params:
     model_name: SeasonalNaive
 
 
-StatsForecast_AutoARIMA:
+AutoARIMA:
   extends: StatsForecast
   params:
     model_name: AutoARIMA
-    nmodels: 2
 
 
-StatsForecast_AutoETS:
+AutoETS:
   extends: StatsForecast
   params:
     model_name: AutoETS
 
 
-StatsForecast_AutoTheta:
+AutoTheta:
   extends: StatsForecast
   params:
     model_name: AutoTheta

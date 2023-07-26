@@ -106,12 +106,13 @@ def run(dataset, config):
 
 
 def get_estimator_class(model_name: str):
-    if model_name == "deepar":
-        return DeepAREstimator
-    elif model_name == "tft":
-        return TemporalFusionTransformerEstimator
-    else:
-        raise ValueError(f"Unsupported model name {model_name}")
+    name_to_class = {
+        "deepar": DeepAREstimator,
+        "tft": TemporalFusionTransformerEstimator,
+    }
+    if model_name not in name_to_class:
+        raise ValueError(f"Unsupported model name {model_name}, supported values {name_to_class.keys()}")
+    return name_to_class[model_name]
 
 
 def train_val_split(full_data, prediction_length, id_column, timestamp_column, target_column):
