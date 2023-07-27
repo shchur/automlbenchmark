@@ -343,6 +343,7 @@ class TimeSeriesDataset(FileDataset):
         self.id_column = config['id_column']
         self.timestamp_column = config['timestamp_column']
 
+        full_data[self.id_column] = full_data[self.id_column].astype(str)
         full_data[self.timestamp_column] = pd.to_datetime(full_data[self.timestamp_column])
         if config['name'] is not None:
             file_name = config['name']

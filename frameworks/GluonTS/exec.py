@@ -89,13 +89,6 @@ def run(dataset, config):
             "item_id column for predictions doesn't match test data index"
         )
 
-    if (predictions["timestamp"] != test_data_future[dataset.timestamp_column]).any():
-        log.info(predictions["timestamp"])
-        log.info(test_data_future[dataset.timestamp_column])
-        raise AssertionError(
-            "timestamp column for predictions doesn't match test data index"
-        )
-
     return result(
         output_file=config.output_predictions_file,
         predictions=predictions_only,

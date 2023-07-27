@@ -30,6 +30,8 @@ def run(dataset, config):
         },
         inplace=True,
     )
+    # Make sure that item_ids are parsed correctly
+    train_data['unique_id'] = train_data['unique_id'].astype(str)
 
     models = get_models(
         framework_params=config.framework_params,
