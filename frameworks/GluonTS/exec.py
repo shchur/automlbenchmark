@@ -7,6 +7,7 @@ from datetime import timedelta
 warnings.simplefilter("ignore")
 
 import gluonts
+import pytorch_lightning as pl
 from gluonts.dataset.pandas import PandasDataset
 from gluonts.torch.model.deepar import DeepAREstimator
 from gluonts.torch.model.tft import TemporalFusionTransformerEstimator
@@ -41,6 +42,8 @@ def run(dataset, config):
     for k, v in config.framework_params.items():
         if not k.startswith('_'):
             params[k] = v
+
+    pl.seed_everything(config.seed)
 
     estimator_cls = get_estimator_class(params.pop("model_name").lower())
 

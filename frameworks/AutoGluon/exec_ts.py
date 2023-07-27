@@ -41,6 +41,7 @@ def run(dataset, config):
             eval_metric=get_eval_metric(config),
             eval_metric_seasonal_period=dataset.seasonality,
             quantile_levels=config.quantile_levels,
+            random_seed=config.seed,
         )
         predictor.fit(
             train_data=train_data,
