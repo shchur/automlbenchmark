@@ -21,6 +21,8 @@ log = logging.getLogger(__name__)
 
 
 def run(dataset, config):
+    np.random.seed(config.seed)
+
     train_data = pd.read_csv(dataset.train_path)
     train_data.rename(
         columns={
