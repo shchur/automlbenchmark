@@ -324,3 +324,10 @@ GluonTS_TFT:
   extends: GluonTS
   params:
     model_name: TFT
+
+
+PyCaret:
+  version: 'stable'
+  description: |
+    An open-source, low-code machine learning library in Python
+  project: https://github.com/pycaret/pycaret
