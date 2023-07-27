@@ -30,6 +30,7 @@ def run(dataset, config):
         verbose=0,
         generation_timeout=config.max_runtime_seconds // 60,
         metric_weighting=get_metric_weighting(config.metric),
+        random_seed=config.seed,
         **framework_params,
     )
 
