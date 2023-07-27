@@ -15,6 +15,7 @@ log = logging.getLogger(__name__)
 
 def run(dataset, config):
     train_data = rename_columns(pd.read_csv(dataset.train_path), dataset)
+    train_data['ID'] = train_data['ID'].astype("str")
 
     model = NeuralProphet(quantiles=config.quantile_levels)
     # Suppress info messages
@@ -46,7 +47,7 @@ def run(dataset, config):
         optional_columns[str(q)] = predictions[col_name].values
 
     # Sanity check - make sure predictions are ordered correctly
-    if (predictions['ID'] != test_data_future['ID']).any():
+    if (predictions['ID'] != test_data_future['ID'].astype('str')).any():
         raise AssertionError(
             "item_id column for predictions doesn't match test data index"
         )
