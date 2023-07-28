@@ -8,14 +8,14 @@ warnings.simplefilter('ignore')
 from neuralprophet import NeuralProphet
 
 from frameworks.shared.callee import call_run, result
-from frameworks.shared.utils import Timer
+from frameworks.shared.utils import Timer, load_timeseries_dataset
 
 log = logging.getLogger(__name__)
 
 
 def run(dataset, config):
-    train_data = rename_columns(pd.read_csv(dataset.train_path), dataset)
-    train_data['ID'] = train_data['ID'].astype("str")
+    train_df, test_df = load_timeseries_dataset(dataset)
+    train_data = rename_columns(train_df, dataset)
 
     model = NeuralProphet(quantiles=config.quantile_levels)
     # Suppress info messages
@@ -25,13 +25,13 @@ def run(dataset, config):
     with Timer() as training:
         model.fit(train_data, freq=dataset.freq, progress=False)
 
-    test_data_future = rename_columns(pd.read_csv(dataset.test_path), dataset)
-    truth_only = test_data_future['y'].values.copy()
+    test_data = rename_columns(test_df, dataset)
+    truth_only = test_data['y'].values.copy()
     # Hide target values before forecast
-    test_data_future['y'] = np.nan
+    test_data['y'] = np.nan
 
     with Timer() as predict:
-        predictions = model.predict(test_data_future)
+        predictions = model.predict(test_data)
 
     predictions_only = predictions["yhat1"].values
 
@@ -47,7 +47,7 @@ def run(dataset, config):
         optional_columns[str(q)] = predictions[col_name].values
 
     # Sanity check - make sure predictions are ordered correctly
-    if (predictions['ID'] != test_data_future['ID'].astype('str')).any():
+    if (predictions['ID'] != test_data['ID']).any():
         raise AssertionError(
             "item_id column for predictions doesn't match test data index"
         )

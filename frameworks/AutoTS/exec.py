@@ -11,13 +11,13 @@ from autots import AutoTS
 from joblib.externals.loky import get_reusable_executor
 
 from frameworks.shared.callee import call_run, result
-from frameworks.shared.utils import Timer
+from frameworks.shared.utils import Timer, load_timeseries_dataset
 
 log = logging.getLogger(__name__)
 
 
 def run(dataset, config):
-    train_data = pd.read_csv(dataset.train_path, parse_dates=[dataset.timestamp_column])
+    train_df, test_df = load_timeseries_dataset(dataset)
 
     prediction_interval = compute_prediction_interval(config.quantile_levels)
     framework_params = {k: v for k, v in config.framework_params.items() if not k.startswith('_')}
@@ -37,7 +37,7 @@ def run(dataset, config):
     with joblib_warning_filter():
         with Timer() as training:
             model = model.fit(
-                train_data,
+                train_df,
                 date_col=dataset.timestamp_column,
                 value_col=dataset.target,
                 id_col=dataset.id_column,
@@ -49,11 +49,10 @@ def run(dataset, config):
     point_forecast = convert_forecast_to_long_format(predictions.forecast)
 
     predictions_only = point_forecast.values
-    test_data_future = pd.read_csv(dataset.test_path)
-    truth_only = test_data_future[dataset.target].values
+    truth_only = test_df[dataset.target].values
 
     # Sanity check - make sure predictions are ordered correctly
-    if (point_forecast.index.get_level_values(0) != test_data_future[dataset.id_column]).any():
+    if (point_forecast.index.get_level_values(0) != test_df[dataset.id_column]).any():
         raise AssertionError("item_id column for predictions doesn't match test data index")
 
     optional_columns = dict(

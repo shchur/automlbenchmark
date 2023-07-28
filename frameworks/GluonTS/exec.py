@@ -15,7 +15,7 @@ from pytorch_lightning.callbacks import Timer as TimerCallback
 from pytorch_lightning.callbacks import EarlyStopping
 
 from frameworks.shared.callee import call_run, result
-from frameworks.shared.utils import Timer
+from frameworks.shared.utils import Timer, load_timeseries_dataset
 
 log = logging.getLogger(__name__)
 
@@ -29,7 +29,7 @@ default_params = {
 
 
 def run(dataset, config):
-    train_df = pd.read_csv(dataset.train_path, parse_dates=[dataset.timestamp_column])
+    train_df, test_df = load_timeseries_dataset(dataset)
     train_data, val_data = train_val_split(
         train_df,
         prediction_length=dataset.forecast_horizon_in_steps,
@@ -80,11 +80,10 @@ def run(dataset, config):
         optional_columns[str(q)] = predictions[str(q)].values
 
     predictions_only = get_point_forecast(predictions, config.metric)
-    test_data_future = pd.read_csv(dataset.test_path)
-    truth_only = test_data_future[dataset.target].values
+    truth_only = test_df[dataset.target].values
 
     # Sanity check - make sure predictions are ordered correctly
-    if (predictions["item_id"] != test_data_future[dataset.id_column]).any():
+    if (predictions["item_id"] != test_df[dataset.id_column]).any():
         raise AssertionError(
             "item_id column for predictions doesn't match test data index"
         )

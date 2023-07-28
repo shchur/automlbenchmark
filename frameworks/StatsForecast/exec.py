@@ -15,25 +15,22 @@ from statsforecast.models import (
 )
 
 from frameworks.shared.callee import call_run, result
-from frameworks.shared.utils import Timer
+from frameworks.shared.utils import Timer, load_timeseries_dataset
 
 log = logging.getLogger(__name__)
 
 
 def run(dataset, config):
     np.random.seed(config.seed)
+    train_df, test_df = load_timeseries_dataset(dataset)
 
-    train_data = pd.read_csv(dataset.train_path)
-    train_data.rename(
+    train_data = train_df.rename(
         columns={
             dataset.id_column: 'unique_id',
             dataset.timestamp_column: 'ds',
             dataset.target: 'y',
         },
-        inplace=True,
     )
-    # Make sure that item_ids are parsed correctly
-    train_data['unique_id'] = train_data['unique_id'].astype(str)
 
     models = get_models(
         framework_params=config.framework_params,
@@ -69,11 +66,10 @@ def run(dataset, config):
         optional_columns[str(q)] = predictions[quantile_to_key[str(q)]].values
 
     predictions_only = predictions[model_name].values
-    test_data_future = pd.read_csv(dataset.test_path)
-    truth_only = test_data_future[dataset.target].values
+    truth_only = test_df[dataset.target].values
 
     # Sanity check - make sure predictions are ordered correctly
-    if (predictions.index != test_data_future[dataset.id_column]).any():
+    if (predictions.index != test_df[dataset.id_column]).any():
         raise AssertionError(
             "item_id column for predictions doesn't match test data index"
         )

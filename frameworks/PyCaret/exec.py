@@ -9,13 +9,13 @@ from pycaret.time_series import TSForecastingExperiment
 from joblib.externals.loky import get_reusable_executor
 
 from frameworks.shared.callee import call_run, result
-from frameworks.shared.utils import Timer
+from frameworks.shared.utils import Timer, load_timeseries_dataset
 
 log = logging.getLogger(__name__)
 
 
 def run(dataset, config):
-    train_data = pd.read_csv(dataset.train_path, parse_dates=[dataset.timestamp_column])
+    train_df, test_df = load_timeseries_dataset(dataset)
 
     coverage, point_alpha, column_rename_map = get_probabilistic_forecast_config(config.quantile_levels)
 
@@ -26,7 +26,7 @@ def run(dataset, config):
     results = []
     training_time = 0.0
     predict_time = 0.0
-    for item_id, ts in train_data.groupby(dataset.id_column):
+    for item_id, ts in train_df.groupby(dataset.id_column):
         experiment = TSForecastingExperiment()
         ts = ts.drop(dataset.id_column, axis=1).set_index(dataset.timestamp_column)
         # Reduce number of folds for time series that are too short
@@ -63,11 +63,10 @@ def run(dataset, config):
     predictions = pd.concat(results)
 
     predictions_only = predictions["y_pred"].values
-    test_data_future = pd.read_csv(dataset.test_path)
-    truth_only = test_data_future[dataset.target].values
+    truth_only = test_df[dataset.target].values
 
     # Sanity check - make sure predictions are ordered correctly
-    if (predictions["item_id"].values != test_data_future[dataset.id_column].values).any():
+    if (predictions["item_id"].values != test_df[dataset.id_column].values).any():
         raise AssertionError("item_id column for predictions doesn't match test data index")
 
     optional_columns = dict(
