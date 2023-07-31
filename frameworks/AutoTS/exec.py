@@ -21,7 +21,6 @@ def run(dataset, config):
 
     prediction_interval = compute_prediction_interval(config.quantile_levels)
     framework_params = {k: v for k, v in config.framework_params.items() if not k.startswith('_')}
-    framework_params.setdefault("num_validations", 2)
 
     model = AutoTS(
         forecast_length=dataset.forecast_horizon_in_steps,

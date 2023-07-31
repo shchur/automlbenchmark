@@ -9,8 +9,14 @@ fi
 
 . "${HERE}/../shared/setup.sh" "${HERE}" true
 
-# Install dependencies first
-PIP install numpy scipy scikit-learn statsmodels lightgbm xgboost numexpr bottleneck yfinance pytrends fredapi holidays pmdarima dill pystan prophet --exists-action i
+# Taken from https://winedarksea.github.io/AutoTS/build/html/source/tutorial.html#safest-bet-for-installation
+PIP install numpy scipy scikit-learn statsmodels lightgbm xgboost numexpr bottleneck yfinance pytrends fredapi --exists-action i
+PIP install pystan prophet --exists-action i  # conda-forge option below works more easily, --no-deps to pip install prophet if this fails
+PIP install tensorflow
+PIP install mxnet --no-deps     # check the mxnet documentation for more install options, also try pip install mxnet --no-deps
+PIP install gluonts arch
+PIP install holidays-ext pmdarima dill greykite --exists-action i --no-deps
+PIP install --upgrade numpy pandas --exists-action i  # mxnet likes to (pointlessly seeming) install old versions of numpy
 
 if [[ "$VERSION" == "stable" ]]; then
     PIP install --no-cache-dir -U ${PKG}

@@ -47,7 +47,7 @@ def run(dataset, config):
             best = experiment.compare_models(n_select=1, sort=get_eval_metric(config.metric), verbose=False)
             if enable_hpo:
                 best = experiment.tune_model(best)
-            print(f"Best model for item {item_id}: {best}")
+            log.info(f"Best model for item {item_id}: {best}")
             final = experiment.finalize_model(best)
 
         training_time += training.duration
