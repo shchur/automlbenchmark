@@ -41,3 +41,25 @@ test:
   cores: 8
   min_vol_size_mb: 100000
   ec2_volume_type: gp3
+
+#####################################################################################################################
+# Custom constraints for AGTS paper
+#####################################################################################################################
+
+10m16c:
+  folds: 1
+  max_runtime_seconds: 600
+  cores: 16
+  min_vol_size_mb: 131072
+
+1h16c:
+  folds: 1
+  max_runtime_seconds: 3600
+  cores: 16
+  min_vol_size_mb: 131072
+
+4h16c:
+  folds: 1
+  max_runtime_seconds: 14400
+  cores: 16
+  min_vol_size_mb: 131072

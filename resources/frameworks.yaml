@@ -173,7 +173,7 @@ NaiveAutoML:
   project: https://github.com/fmohr/naiveautoml
   description: |
     NaiveAutoML is an AutoML framework that aims to mimic a simple ML workflow,
-    where in-isolation optimization of the different components of a pre-defined 
+    where in-isolation optimization of the different components of a pre-defined
     pipeline scheme is applied.
   refs: [https://link.springer.com/article/10.1007/s10994-022-06200-0#article-info]
 #  params:
@@ -254,3 +254,98 @@ TunedRandomForest:
 #    _n_jobs: 1  # cf. RandomForest
 #    _tuning:
 #      n_estimators: 500
+
+
+#####################################################################################################################
+# Time series frameworks
+#####################################################################################################################
+
+AutoGluon_NoEnsemble:
+  extends: AutoGluon
+  params:
+    presets: best_quality
+    enable_ensemble: false
+
+
+AutoGluon_NoDeepModels:
+  extends: AutoGluon
+  params:
+    presets: best_quality
+    excluded_model_types: [DeepAR, TemporalFusionTransformer, PatchTST, SimpleFeedForward]
+
+
+AutoGluon_NoStatModels:
+  extends: AutoGluon
+  params:
+    presets: best_quality
+    excluded_model_types: [AutoETS, AutoARIMA, Theta, SeasonalNaive, Naive]
+
+
+AutoGluon_NoTreeModels:
+  extends: AutoGluon
+  params:
+    presets: best_quality
+    excluded_model_types: [DirectTabular, RecursiveTabular]
+
+
+GluonTS:
+  version: 'stable'
+  description: |
+    Probabilistic time series modeling in Python.
+  project: https://github.com/awslabs/gluonts
+
+
+DeepAR:
+  extends: GluonTS
+  params:
+    model_name: DeepAR
+
+
+TFT:
+  extends: GluonTS
+  params:
+    model_name: TFT
+
+
+StatsForecast:
+  version: 'stable'
+  description: |
+    Lightning ⚡️ fast forecasting with statistical and econometric models.
+  project: https://github.com/Nixtla/statsforecast
+
+
+SeasonalNaive:
+  extends: StatsForecast
+  params:
+    model_name: SeasonalNaive
+
+
+AutoARIMA:
+  extends: StatsForecast
+  params:
+    model_name: AutoARIMA
+
+
+AutoETS:
+  extends: StatsForecast
+  params:
+    model_name: AutoETS
+
+
+AutoTheta:
+  extends: StatsForecast
+  params:
+    model_name: AutoTheta
+
+
+StatEnsemble:
+  extends: StatsForecast
+  params:
+    model_name: StatEnsemble
+
+
+AutoPyTorch:
+  version: 'stable'
+  description: |
+    Automatic architecture search and hyperparameter optimization for PyTorch.
+  project: https://github.com/automl/Auto-PyTorch

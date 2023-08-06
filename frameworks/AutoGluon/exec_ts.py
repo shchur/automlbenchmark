@@ -45,6 +45,7 @@ def run(dataset, config):
         predictor.fit(
             train_data=train_data,
             time_limit=config.max_runtime_seconds,
+            random_seed=config.seed,
             **{k: v for k, v in config.framework_params.items() if not k.startswith('_')},
         )
 
