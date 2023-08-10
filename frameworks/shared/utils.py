@@ -47,7 +47,11 @@ def load_timeseries_dataset(dataset):
     # Ensure that id_column is loaded as string to avoid incorrect sorting
     train_data = pd.read_csv(dataset.train_path, dtype={dataset.id_column: str}, parse_dates=[dataset.timestamp_column])
     test_data = pd.read_csv(dataset.test_path, dtype={dataset.id_column: str}, parse_dates=[dataset.timestamp_column])
-    return train_data, test_data
+    if dataset.static_covariates_path is not None:
+        static_covariates = pd.read_csv(dataset.static_covariates_path, dtype={dataset.id_column: str})
+    else:
+        static_covariates = None
+    return train_data, test_data, static_covariates
 
 
 utils = load_amlb_module("amlb.utils")

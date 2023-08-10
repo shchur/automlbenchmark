@@ -6,10 +6,11 @@ import shutil
 import sys
 import tempfile
 import warnings
+
 warnings.simplefilter("ignore")
 
-if sys.platform == 'darwin':
-    os.environ['OMP_NUM_THREADS'] = '1'
+if sys.platform == "darwin":
+    os.environ["OMP_NUM_THREADS"] = "1"
 
 from autogluon.core.utils.savers import save_pd, save_pkl
 from autogluon.timeseries import TimeSeriesPredictor, TimeSeriesDataFrame
@@ -27,17 +28,28 @@ def run(dataset, config):
     prediction_length = dataset.forecast_horizon_in_steps
     train_df, test_df = load_timeseries_dataset(dataset)
 
+    train_df, test_df, static_covariates = load_timeseries_dataset(dataset)
+    if static_covariates is not None:
+        static_covariates = static_covariates.set_index(dataset.id_column)
+
     train_data = TimeSeriesDataFrame.from_data_frame(
         train_df,
         id_column=dataset.id_column,
         timestamp_column=dataset.timestamp_column,
     )
+    train_data.static_features = static_covariates
 
     test_data = TimeSeriesDataFrame.from_data_frame(
         test_df,
         id_column=dataset.id_column,
         timestamp_column=dataset.timestamp_column,
     )
+    if len(train_data.columns) > 1:
+        future_known_covariates = test_data.drop(dataset.target, axis=1)
+        known_covariates_names = future_known_covariates.columns
+    else:
+        future_known_covariates = None
+        known_covariates_names = None
 
     predictor_path = tempfile.mkdtemp() + os.sep
     with Timer() as training:
@@ -48,16 +60,23 @@ def run(dataset, config):
             eval_metric=get_eval_metric(config),
             eval_metric_seasonal_period=dataset.seasonality,
             quantile_levels=config.quantile_levels,
+            known_covariates_names=known_covariates_names,
         )
         predictor.fit(
             train_data=train_data,
             time_limit=config.max_runtime_seconds,
             random_seed=config.seed,
-            **{k: v for k, v in config.framework_params.items() if not k.startswith('_')},
+            **{
+                k: v
+                for k, v in config.framework_params.items()
+                if not k.startswith("_")
+            },
         )
 
     with Timer() as predict:
-        predictions = pd.DataFrame(predictor.predict(train_data))
+        predictions = pd.DataFrame(
+            predictor.predict(train_data, known_covariates=future_known_covariates)
+        )
 
     # Add columns necessary for the metric computation + quantile forecast to `optional_columns`
     optional_columns = dict(
@@ -71,12 +90,17 @@ def run(dataset, config):
     truth_only = test_df[dataset.target].values
 
     # Sanity check - make sure predictions are ordered correctly
-    assert predictions.index.equals(test_data.index), "Predictions and test data index do not match"
+    assert predictions.index.equals(
+        test_data.index
+    ), "Predictions and test data index do not match"
 
     test_data_full = pd.concat([train_data, test_data])
+    test_data_full.static_features = static_covariates
     leaderboard = predictor.leaderboard(test_data_full, silent=True)
 
-    with pd.option_context('display.max_rows', None, 'display.max_columns', None, 'display.width', 1000):
+    with pd.option_context(
+        "display.max_rows", None, "display.max_columns", None, "display.width", 1000
+    ):
         log.info(leaderboard)
 
     save_artifacts(predictor=predictor, leaderboard=leaderboard, config=config)
@@ -85,14 +109,16 @@ def run(dataset, config):
     # Kill child processes spawned by Joblib to avoid spam in the AMLB log
     get_reusable_executor().shutdown(wait=True)
 
-    return result(output_file=config.output_predictions_file,
-                  predictions=predictions_only,
-                  truth=truth_only,
-                  target_is_encoded=False,
-                  models_count=len(leaderboard),
-                  training_duration=training.duration,
-                  predict_duration=predict.duration,
-                  optional_columns=pd.DataFrame(optional_columns))
+    return result(
+        output_file=config.output_predictions_file,
+        predictions=predictions_only,
+        truth=truth_only,
+        target_is_encoded=False,
+        models_count=len(leaderboard),
+        training_duration=training.duration,
+        predict_duration=predict.duration,
+        optional_columns=pd.DataFrame(optional_columns),
+    )
 
 
 def get_eval_metric(config):
@@ -103,9 +129,12 @@ def get_eval_metric(config):
         mase="MASE",
         mse="MSE",
         rmse="RMSE",
+        wql="mean_wQuantileLoss",
     )
 
-    eval_metric = metrics_mapping[config.metric] if config.metric in metrics_mapping else None
+    eval_metric = (
+        metrics_mapping[config.metric] if config.metric in metrics_mapping else None
+    )
     if eval_metric is None:
         log.warning("Performance metric %s not supported.", config.metric)
     return eval_metric
@@ -122,18 +151,20 @@ def get_point_forecast(predictions, metric):
 
 
 def save_artifacts(predictor, leaderboard, config):
-    artifacts = config.framework_params.get('_save_artifacts', ['leaderboard'])
+    artifacts = config.framework_params.get("_save_artifacts", ["leaderboard"])
     try:
-        if 'leaderboard' in artifacts:
+        if "leaderboard" in artifacts:
             leaderboard_dir = output_subdir("leaderboard", config)
-            save_pd.save(path=os.path.join(leaderboard_dir, "leaderboard.csv"), df=leaderboard)
+            save_pd.save(
+                path=os.path.join(leaderboard_dir, "leaderboard.csv"), df=leaderboard
+            )
 
-        if 'info' in artifacts:
+        if "info" in artifacts:
             ag_info = predictor.info()
             info_dir = output_subdir("info", config)
             save_pkl.save(path=os.path.join(info_dir, "info.pkl"), object=ag_info)
 
-        if 'models' in artifacts:
+        if "models" in artifacts:
             shutil.rmtree(os.path.join(predictor.path, "utils"), ignore_errors=True)
             models_dir = output_subdir("models", config)
             zip_path(predictor.path, os.path.join(models_dir, "models.zip"))
@@ -141,5 +172,5 @@ def save_artifacts(predictor, leaderboard, config):
         log.warning("Error when saving artifacts.", exc_info=True)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     call_run(run)
