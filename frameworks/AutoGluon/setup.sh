@@ -2,7 +2,7 @@
 
 HERE=$(dirname "$0")
 VERSION=${1:-"stable"}
-REPO=${2:-"https://github.com/awslabs/autogluon.git"}
+REPO=${2:-"https://github.com/shchur/autogluon.git"}
 PKG=${3:-"autogluon"}
 if [[ "$VERSION" == "latest" ]]; then
     VERSION="master"
