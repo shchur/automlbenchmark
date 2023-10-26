@@ -3,7 +3,7 @@
 HERE=$(dirname "$0")
 VERSION=${1:-"stable"}
 REPO=${2:-"https://github.com/shchur/autogluon.git"}
-PKG=${3:-"autogluon"}
+PKG=${3:-"autogluon.timeseries"}
 if [[ "$VERSION" == "latest" ]]; then
     VERSION="master"
 fi
@@ -22,11 +22,13 @@ PIP install --upgrade setuptools wheel
 
 if [[ "$VERSION" == "stable" ]]; then
     PIP install --no-cache-dir -U "${PKG}"
-    PIP install --no-cache-dir -U "${PKG}.tabular[skex]"
+    PIP install --no-cache-dir -U "autogluon.tabular[skex]"
 elif [[ "$VERSION" =~ ^[0-9] ]]; then
+    echo "INSTALLING FROM PYPI"
     PIP install --no-cache-dir -U "${PKG}==${VERSION}"
-    PIP install --no-cache-dir -U "${PKG}.tabular[skex]==${VERSION}"
+    PIP install --no-cache-dir -U "autogluon.tabular[skex]==${VERSION}"
 else
+    echo "INSTALLING FROM SOURCE"
     TARGET_DIR="${HERE}/lib/${PKG}"
     rm -Rf ${TARGET_DIR}
     git clone --depth 1 --single-branch --branch ${VERSION} --recurse-submodules ${REPO} ${TARGET_DIR}

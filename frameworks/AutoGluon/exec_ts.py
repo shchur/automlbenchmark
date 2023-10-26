@@ -26,8 +26,6 @@ log = logging.getLogger(__name__)
 def run(dataset, config):
     log.info(f"\n**** AutoGluon TimeSeries [v{__version__}] ****\n")
     prediction_length = dataset.forecast_horizon_in_steps
-    train_df, test_df = load_timeseries_dataset(dataset)
-
     train_df, test_df, static_covariates = load_timeseries_dataset(dataset)
     if static_covariates is not None:
         static_covariates = static_covariates.set_index(dataset.id_column)
