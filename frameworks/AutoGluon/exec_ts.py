@@ -44,7 +44,7 @@ def run(dataset, config):
     )
     if len(train_data.columns) > 1:
         future_known_covariates = test_data.drop(dataset.target, axis=1)
-        known_covariates_names = future_known_covariates.columns
+        known_covariates_names = list(future_known_covariates.columns)
     else:
         future_known_covariates = None
         known_covariates_names = None
