@@ -101,7 +101,14 @@ def run(dataset, config):
     ):
         log.info(leaderboard)
 
-    save_artifacts(predictor=predictor, leaderboard=leaderboard, config=config)
+    zeroshot_artifact = predictor.get_simulation_artifact(test_data_full)
+
+    save_artifacts(
+        predictor=predictor,
+        leaderboard=leaderboard,
+        config=config,
+        zeroshot_artifact=zeroshot_artifact,
+    )
     shutil.rmtree(predictor.path, ignore_errors=True)
 
     # Kill child processes spawned by Joblib to avoid spam in the AMLB log
@@ -148,14 +155,15 @@ def get_point_forecast(predictions, metric):
         return predictions["0.5"].values
 
 
-def save_artifacts(predictor, leaderboard, config):
+def save_artifacts(predictor, leaderboard, config, zeroshot_artifact):
     artifacts = config.framework_params.get("_save_artifacts", ["leaderboard"])
     try:
         if "leaderboard" in artifacts:
-            leaderboard_dir = output_subdir("leaderboard", config)
             save_pd.save(
-                path=os.path.join(leaderboard_dir, "leaderboard.csv"), df=leaderboard
+                path=os.path.join(config.output_dir, "leaderboard.csv"), df=leaderboard
             )
+        
+        save_pkl.save(path=os.path.join(config.output_dir, "zeroshot.pkl"), zeroshot_artifact)
 
         if "info" in artifacts:
             ag_info = predictor.info()
