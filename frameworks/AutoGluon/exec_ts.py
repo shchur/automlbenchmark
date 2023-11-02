@@ -162,8 +162,11 @@ def save_artifacts(predictor, leaderboard, config, zeroshot_artifact):
             save_pd.save(
                 path=os.path.join(config.output_dir, "leaderboard.csv"), df=leaderboard
             )
-        
-        save_pkl.save(path=os.path.join(config.output_dir, "zeroshot.pkl"), zeroshot_artifact)
+
+        save_pkl.save(
+            path=os.path.join(config.output_dir, "zeroshot.pkl"),
+            object=zeroshot_artifact,
+        )
 
         if "info" in artifacts:
             ag_info = predictor.info()
